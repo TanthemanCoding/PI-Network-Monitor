@@ -25,6 +25,21 @@ print(failed_attempts)
 
 
 
+
+def read_logs(file_path: str) -> None:
+    with open(file_path, "r") as file:
+        for line in file:
+            if "Failed password" in line:
+                print(line.strip())
+
+
+read_logs("tests/sample_auth.log")
+
+
+
+
+
+
 #failed_attempts = {}
 #failed_attempts[192.0.2.100] = 1
 #failed_attempts[192.0.2.101] = 2
