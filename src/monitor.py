@@ -1,3 +1,5 @@
+# Import statements
+from datetime import datetime
 
 def read_logs(file_path: str) -> list[str]:
     failed_logs = []
@@ -59,6 +61,13 @@ def extract_time(log: str) -> str:
     # .join puts the list into a string and the " " puts spaces in between the words when calling the function
     return " ".join(words[:3])
 
+
+def convert_time(timestamp: str) -> datetime:
+    # datetime function helps us convert the string into an actual date time format
+    converted_time = datetime.strptime("2026 " + timestamp, "%Y %b %d %H:%M:%S")
+    return converted_time
+
+
 def main() -> None:
     # Reads the file and stores the failed login entries in a list
     failed_logs = read_logs("tests/sample_auth.log")
@@ -77,6 +86,13 @@ def main() -> None:
     for log in failed_logs:
         time_stamp = extract_time(log)
         print(time_stamp)
+
+    time1 = convert_time("Nov 11 19:54:48")
+    time2 = convert_time("Nov 11 19:55:20")
+
+    difference = time2 - time1
+    print(difference)
+    print(difference.total_seconds())
         
 
 if __name__ == "__main__":
