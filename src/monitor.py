@@ -20,14 +20,7 @@ def count_failures(failed_logs: list[str]) -> dict[str, int]:
     failed_attempts = {}
 
     for failed_log in failed_logs:
-        # Splits string into a list of words
-        words = failed_log.split()
-
-        # "from" is the word that appears before the IP address, so .index() gives us the index of where "from" is at
-        from_index = words.index("from")
-
-        # Since "from" appears right before the IP and .index() gives us an int, from_index + 1 gives us the index of the IP address
-        ip_address = words[from_index + 1]
+        ip_address = extract_ip(failed_log)
 
         # Checks to see if the IP address is already in the dict.
         # If it is, increase its value by 1. If it isn't, assign 1 to its value.
@@ -68,32 +61,48 @@ def convert_time(timestamp: str) -> datetime:
     return converted_time
 
 
+def extract_ip(log: str) -> str:
+    words = log.split()
+    from_index = words.index("from")
+    ip_address = words[from_index + 1]
+    return ip_address
+
+
+def group_timestamps(failed_logs: list[str]) -> dict[str, list[datetime]]:
+    ip_timestamps = {}
+    for failed_log in failed_logs:
+        ip_address = extract_ip(failed_log)
+        time_stamp = extract_time(failed_log)
+        converted_time = convert_time(time_stamp)
+
+        if ip_address in ip_timestamps:
+            ip_timestamps[ip_address].append(converted_time)
+        else:
+            ip_timestamps[ip_address] = [converted_time]
+
+    return ip_timestamps
+
+
+def detect_brute_force(ip_timestamps: dict[str, list[datetime]], threshold: int, window_seconds: int) -> None:
+    for ip_address, times in ip_timestamps.items():
+        times.sort()
+        for i in range(len(times) - (threshold - 1)):
+            difference = times[i + (threshold - 1)] - times[i]
+
+            if difference.total_seconds() <= window_seconds:
+                print(f"ALERT {ip_address} has {threshold} failed attempts within {window_seconds} seconds!")
+                break
+
+
+
 def main() -> None:
     # Reads the file and stores the failed login entries in a list
-    failed_logs = read_logs("tests/sample_auth.log")
+    failed_logs = read_logs("tests/slow_auth.log")
+    
+    ip_timestamps = group_timestamps(failed_logs)
+    
+    detect_brute_force(ip_timestamps, 5, 90)
 
-    # Passes the failed logs into the function to count attempts by IP address
-    failed_attempts = count_failures(failed_logs)
-
-    # Checks which IP addresses have 5 or more failed login attempts
-    alerts = alert(failed_attempts, 5)
-
-    # Prints each alert individually instead of printing the entire list
-    for message in alerts:
-        print(message)
-
-    # Extracts and prints the timestamp from each failed login entry
-    for log in failed_logs:
-        time_stamp = extract_time(log)
-        print(time_stamp)
-
-    time1 = convert_time("Nov 11 19:54:48")
-    time2 = convert_time("Nov 11 19:55:20")
-
-    difference = time2 - time1
-    print(difference)
-    print(difference.total_seconds())
-        
 
 if __name__ == "__main__":
     main()
