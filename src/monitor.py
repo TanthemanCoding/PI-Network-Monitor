@@ -53,6 +53,32 @@ def alert(failed_attempts: dict[str, int], threshold: int) -> list[str]:
     return alerts
 
 
+def extract_time(log: str) -> str:
+    words = log.split()
+
+    # .join puts the list into a string and the " " puts spaces in between the words when calling the function
+    return " ".join(words[:3])
+
+def main() -> None:
+    # Reads the file and stores the failed login entries in a list
+    failed_logs = read_logs("tests/sample_auth.log")
+
+    # Passes the failed logs into the function to count attempts by IP address
+    failed_attempts = count_failures(failed_logs)
+
+    # Checks which IP addresses have 5 or more failed login attempts
+    alerts = alert(failed_attempts, 5)
+
+    # Prints each alert individually instead of printing the entire list
+    for message in alerts:
+        print(message)
+
+    # Extracts and prints the timestamp from each failed login entry
+    for log in failed_logs:
+        time_stamp = extract_time(log)
+        print(time_stamp)
+
+
 # Reads the file and stores the failed login entries in a list
 failed_logs = read_logs("tests/sample_auth.log")
 
@@ -68,3 +94,13 @@ print(failed_attempts)
 # Prints each alert individually instead of printing the entire list
 for message in alerts:
     print(message)
+
+
+# Extracts and prints the timestamp from each failed login entry
+for log in failed_logs:
+    time_stamp = extract_time(log)
+    print(time_stamp)
+
+
+if __name__ == "__main__":
+    main()
