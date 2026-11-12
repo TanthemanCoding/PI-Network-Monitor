@@ -77,30 +77,7 @@ def main() -> None:
     for log in failed_logs:
         time_stamp = extract_time(log)
         print(time_stamp)
-
-
-# Reads the file and stores the failed login entries in a list
-failed_logs = read_logs("tests/sample_auth.log")
-
-# Passes the failed logs into the function to count attempts by IP address
-failed_attempts = count_failures(failed_logs)
-
-# Checks which IP addresses have 5 or more failed login attempts
-alerts = alert(failed_attempts, 5)
-
-# Prints the dictionary containing each IP and its count
-print(failed_attempts)
-
-# Prints each alert individually instead of printing the entire list
-for message in alerts:
-    print(message)
-
-
-# Extracts and prints the timestamp from each failed login entry
-for log in failed_logs:
-    time_stamp = extract_time(log)
-    print(time_stamp)
-
+        
 
 if __name__ == "__main__":
     main()
