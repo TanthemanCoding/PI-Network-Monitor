@@ -6,6 +6,7 @@ from datetime import datetime
 # ipaddress allows us to validate IPv4 and IPv6 addresses.
 import ipaddress
 
+import subprocess
 
 # This class contains the functions needed to monitor SSH login failures
 # and detect possible brute-force attacks.
