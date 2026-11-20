@@ -220,7 +220,7 @@ def main() -> None:
     monitor = NetworkMonitor(5, 90)
 
     # Read failed SSH login entries from our test log file.
-    failed_logs = monitor.read_logs("tests/ip_validation.log")
+    failed_logs = monitor.read_logs("tests/real_failed_ssh.log")
 
     # Organize the failed login timestamps by IP address.
     ip_timestamps = monitor.group_timestamps(failed_logs)
