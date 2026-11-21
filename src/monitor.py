@@ -102,6 +102,26 @@ class NetworkMonitor:
         return failed_logs
 
 
+
+    def read_ssh_journal(self) -> list[str]:
+        result = subprocess.run(
+                ["journalctl", "-u", "ssh", "--no-pager"],
+                capture_output=True,
+                text=True
+                )
+
+        if result.returncode != 0:
+            print(result.stderr)
+            return []
+
+        logs = result.stdout.splitlines()
+        failed_logs = []
+        for log in logs:
+            if "Failed password" in log:
+                failed_logs.append(log)
+        return failed_logs
+
+
     # Groups failed login timestamps by their source IP address.
     # failed_logs: List of failed SSH login strings.
     # Returns a dictionary containing IP addresses and lists of datetime objects.
@@ -220,8 +240,8 @@ def main() -> None:
     # 90 = detection time window in seconds.
     monitor = NetworkMonitor(5, 90)
 
-    # Read failed SSH login entries from our test log file.
-    failed_logs = monitor.read_logs("tests/real_failed_ssh.log")
+    # Read failed SSH login entries directly from the Linux system journal.
+    failed_logs = monitor.read_ssh_journal()
 
     # Organize the failed login timestamps by IP address.
     ip_timestamps = monitor.group_timestamps(failed_logs)
