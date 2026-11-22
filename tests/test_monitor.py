@@ -3,6 +3,7 @@ from src.monitor import NetworkMonitor
 from datetime import datetime
 import io
 from contextlib import redirect_stdout
+from unittest.mock import patch
 
 class TestNetworkMonitor(unittest.TestCase):
     def test_threshold(self):
@@ -227,5 +228,59 @@ class TestNetworkMonitor(unittest.TestCase):
                         
         self.assertIn("ALERT 192.168.1.100", output.getvalue())
         self.assertIn("ALERT 2001:db8::1", output.getvalue())
+
+
+    def test_monitor_live_alert(self):
+        with patch("subprocess.Popen") as mock_popen:
+            fake_process = mock_popen.return_value
+            fake_logs = [
+            "Nov 21 14:30:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:30:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:30:30 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:30:45 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:31:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2"
+            "Nov 21 14:31:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2"
+            ]
+
+            fake_process.stdout = iter(fake_logs)
+
+            monitor = NetworkMonitor(5, 90)
+
+            output = io.StringIO()
+            with redirect_stdout(output):
+                monitor.monitor_live()
+
+            self.assertEqual(1, output.getvalue().count("Possible brute force attempt!"))
+
+
+    def test_monitor_live_second_burst(self):
+        with patch("subprocess.Popen") as mock_popen:
+            fake_process = mock_popen.return_value
+            fake_logs = [
+            "Nov 21 14:30:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:30:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:30:30 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:30:45 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:31:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:31:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:34:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:34:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:34:30 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:34:45 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
+            "Nov 21 14:35:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2"
+            ]
+
+            fake_process.stdout = iter(fake_logs)
+
+            monitor = NetworkMonitor(5, 90)
+
+            output = io.StringIO()
+            with redirect_stdout(output):
+                monitor.monitor_live()
+
+            self.assertEqual(2, output.getvalue().count("Possible brute force attempt!"))
+
+
+
         
 
