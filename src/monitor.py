@@ -259,7 +259,7 @@ class NetworkMonitor:
                             attempts[ip_address] = recent_attempts
                             if len(recent_attempts) >= self.threshold:
                                 if ip_address not in alerted_ips:
-                                    print("Possible brute force attempt!")
+                                    print(f"ALERT: {ip_address} made {self.threshold} failed SSH login attempts within {self.window_seconds} seconds!")
                                     alerted_ips.add(ip_address)
                             else:
                                 alerted_ips.discard(ip_address)

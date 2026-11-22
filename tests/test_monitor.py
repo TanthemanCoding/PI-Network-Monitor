@@ -238,7 +238,7 @@ class TestNetworkMonitor(unittest.TestCase):
             "Nov 21 14:30:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
             "Nov 21 14:30:30 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
             "Nov 21 14:30:45 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
-            "Nov 21 14:31:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2"
+            "Nov 21 14:31:00 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2",
             "Nov 21 14:31:15 target sshd: Failed password for tan from 192.0.2.10 port 53563 ssh2"
             ]
 
@@ -250,7 +250,7 @@ class TestNetworkMonitor(unittest.TestCase):
             with redirect_stdout(output):
                 monitor.monitor_live()
 
-            self.assertEqual(1, output.getvalue().count("Possible brute force attempt!"))
+            self.assertEqual(1, output.getvalue().count(f"ALERT: 192.0.2.10 made 5 failed SSH login attempts within 90 seconds!"))
 
 
     def test_monitor_live_second_burst(self):
@@ -277,8 +277,9 @@ class TestNetworkMonitor(unittest.TestCase):
             output = io.StringIO()
             with redirect_stdout(output):
                 monitor.monitor_live()
+                
 
-            self.assertEqual(2, output.getvalue().count("Possible brute force attempt!"))
+            self.assertEqual(2, output.getvalue().count(f"ALERT: 192.0.2.10 made 5 failed SSH login attempts within 90 seconds!"))
 
 
 
