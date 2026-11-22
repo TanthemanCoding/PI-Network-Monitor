@@ -243,7 +243,39 @@ class NetworkMonitor:
         try:
             for log in result.stdout:
                 if "Failed password" in log:
-                    failed_log = self.extract_ip(log)
+                    ip_address = self.extract_ip(log)
+                    if ip_address is not None:
+                        timestamp = self.extract_time(log)
+                        converted_time = self.convert_time(timestamp)
+                        if converted_time is not None:
+                            if ip_address not in attempts:
+                                attempts[ip_address] = []
+                            attempts[ip_address].append(converted_time)
+                            cutoff = converted_time - timedelta(seconds=self.window_seconds)
+                            recent_attempts = []
+                            for time in attempts[ip_address]:
+                                if cutoff <= time <= converted_time:
+                                    recent_attempts.append(time)
+                            attempts[ip_address] = recent_attempts
+                            if len(recent_attempts) >= self.threshold:
+                                if ip_address not in alerted_ips:
+                                    print("Possible brute force attempt!")
+                                    alerted_ips.add(ip_address)
+                            else:
+                                alerted_ips.discard(ip_address)
+        
+        except KeyboardInterrupt:
+            print("\nMonitoring stopped")
+
+        finally:
+            if result.poll() is None:
+                result.terminate()
+   
+            result.wait()
+
+
+
+
 
 
 
@@ -268,6 +300,8 @@ def main() -> None:
 
     # Check each IP address and print alerts for suspicious activity.
     monitor.detect_brute_force(ip_timestamps)
+
+    monitor.monitor_live()
 
 
 # Only run main() when this file is executed directly.
