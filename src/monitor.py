@@ -126,7 +126,7 @@ class NetworkMonitor:
                             attempts[ip_address] = recent_attempts
                             if len(recent_attempts) >= self.threshold:
                                 if ip_address not in alerted_ips:
-                                    alert_time = datetime.now().strftime("%Y-%m-%d %H:%M;%S")
+                                    alert_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                     print(f"[{alert_time}] ALERT: {ip_address} made {self.threshold} failed SSH login attempts within {self.window_seconds} seconds!")
                                     alerted_ips.add(ip_address)
                             else:
