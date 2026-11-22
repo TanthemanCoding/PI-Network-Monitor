@@ -1,7 +1,7 @@
 # Pi Network Monitor
 
 A Python tool that detects possible SSH brute-force attacks by watching failed login
-attempts in Linux logs and the system journal.
+attempts in the Linux system journal.
 
 ## Overview
 
@@ -10,14 +10,14 @@ login attempts, groups them by source IP address, and raises an alert when a
 single IP crosses a configurable number of failures inside a short time
 window — the signature of a brute-force attack.
 
-It can run as a one-shot scan over a saved log file or the system journal, or
+It can run as a one-shot scan over the system journal, or
 as a live monitor that follows the journal in real time. The project is built
 as a hands-on security and Python/OOP exercise, comes with an automated test
 suite, and is headed for deployment on a Raspberry Pi.
 
 ## Features
 
-- Reads failed SSH logins from a log file or from `journalctl`
+- Reads failed SSH logins from `journalctl`
 - Validates IPv4 and IPv6 source addresses with the `ipaddress` module
 - Groups attempts per IP and detects "threshold failures within a time window"
 - Live monitoring that alerts once per burst (and re-alerts on a genuine new burst)
@@ -27,7 +27,6 @@ suite, and is headed for deployment on a Raspberry Pi.
 
 - Python 3.10 or newer (uses `X | None` and built-in generic type hints)
 - A Linux system with `journalctl` for the journal/live modes
-  (file mode works anywhere)
 - No third-party dependencies — standard library only
 
 ## Installation
