@@ -229,6 +229,24 @@ class NetworkMonitor:
         # Return the successfully converted datetime object.
         return converted_time
 
+
+    def monitor_live(self) -> None:
+        attempts = {}
+        alerted_ips = set()
+
+        result = subprocess.Popen(
+            ["journalctl", "-u", "ssh", "-f", "-n", "0", "--no-pager"],
+            stdout=subprocess.PIPE,
+            text=True
+        )
+
+        try:
+            for log in result.stdout:
+                if "Failed password" in log:
+                    failed_log = self.extract_ip(log)
+
+
+
         
 
 
