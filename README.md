@@ -96,7 +96,7 @@ tests/              # unittest suite and log fixtures
 - [x] 26 automated unit tests (all passing)
 - [x] File and `journalctl` log reading
 - [x] Live monitoring (implemented and unit-tested)
-- [x] End-to-end validation against a real attack in an isolated lab
+- [x] End-to-end validation using controlled failed SSH logins
 - [x] Raspberry Pi deployment
 - [x] Live detection verified as a systemd service
 - [x] Automatic startup verified after reboot
