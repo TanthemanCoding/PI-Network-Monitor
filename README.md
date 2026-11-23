@@ -13,7 +13,7 @@ window — the signature of a brute-force attack.
 It can run as a one-shot scan over the system journal, or
 as a live monitor that follows the journal in real time. The project is built
 as a hands-on security and Python/OOP exercise, comes with an automated test
-suite, and is headed for deployment on a Raspberry Pi.
+suite, and is deployed on a Raspberry Pi 4. It runs as a systemd service and starts automatically at boot.
 
 ## Features
 
@@ -22,6 +22,9 @@ suite, and is headed for deployment on a Raspberry Pi.
 - Groups attempts per IP and detects "threshold failures within a time window"
 - Live monitoring that alerts once per burst (and re-alerts on a genuine new burst)
 - 26 automated unit tests (`unittest`)
+- Timestamped live alerts
+- Runs in the background on a Raspberry Pi using systemd
+- Automatic startup after reboot
 
 ## Requirements
 
@@ -93,9 +96,42 @@ tests/              # unittest suite and log fixtures
 - [x] 26 automated unit tests (all passing)
 - [x] File and `journalctl` log reading
 - [x] Live monitoring (implemented and unit-tested)
-- [ ] End-to-end validation against a real attack in an isolated lab
-- [ ] Raspberry Pi deployment
+- [x] End-to-end validation against a real attack in an isolated lab
+- [x] Raspberry Pi deployment
+- [x] Live detection verified as a systemd service
+- [x] Automatic startup verified after reboot
 - [ ] Optional: automated blocking, SIEM integration
+
+## Raspberry Pi service
+
+The monitor is deployed on a Raspberry Pi 4 running Python 3.13.5.
+The `pi-network-monitor` systemd service runs under the `tantheman` account.
+
+Check service status:
+
+```bash
+systemctl status pi-network-monitor --no-pager
+```
+
+Watch new alerts:
+
+```bash
+journalctl -u pi-network-monitor -f -n 0
+```
+
+Restart or stop the service
+
+```bash
+sudo systemctl restart pi-network-monitor
+sudo systemctl stop pi-network-monitor
+```
+
+Closing the SSH terminal does not stop the service. Pressing Ctrl + C while viewing the logs only closes the log viewer.
+
+The monitor scans existing SSH journal entries at startup, so historical failures may trigger alerts again when it restarts.
+
+Avoid running a manual instance while the service is already running, as both instances may report the same activity.
+
 
 ## Responsible use
 
